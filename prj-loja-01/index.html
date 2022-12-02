@@ -44,6 +44,12 @@
             margin-top: 106px;
         }
 
+        #lsQuantidade {
+            width: 700px;
+            margin-top: 106px;
+            display: none;
+        }
+
         .produto {
             border: solid black 3px;
             width: 200px;
@@ -115,12 +121,31 @@
     </style>
     <div id="banner">
         <img src="icone-loja.png" alt="">
-        <h1>Nome da Loja</h1>
+        <h1>Ovos de colher</h1>
     </div>
     <div id="container">
+        <div id="lsQuantidade">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Valor Unitário</th>
+                        <th>Quantidade</th>
+                        <th>Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+            <label for="nome">Nome</label><br>
+            <input type="text" id="nome"><br>
+            <input type="button" value="Enviar Pedido" onclick="enviarWhatsApp()">
+        </div>
         <div class="ls-produto" id="lsProduto">
         </div>
-        <div id="bt-fixo" onclick="alert(0)">
+
+        <div id="bt-fixo" onclick="carrinho(),mudarTela()">
             <i style="font-size:54px" class="fa">&#xf07a;</i>
             <span id="qt-produto">0</span>
         </div>
@@ -137,7 +162,10 @@
                 qtCarrinho++;
                 document.getElementById("qt-produto").innerHTML = qtCarrinho;
                 elemento.classList.add("produto-selecionado");
-                lsProduto[i].carrinho = true;
+                p = lsProduto[i];
+                p.carrinho = true;
+                p.quantidade = 1;
+                p.valorParcial = p.valor * p.quantidade;
             }
 
         }
@@ -157,8 +185,8 @@
         function clonarProdutos(lsProduto) {
             txProduto = "";
             i = 0;
-            for(produto of lsProduto){
-                console.log(produto);
+            for (produto of lsProduto) {
+                // console.log(produto);
                 txProduto += `
                 <div class="produto" onclick="addCarrinho(this,${i})">
                 <img src="${produto.img}" alt="">
@@ -173,6 +201,69 @@
         }
 
         buscarProduto();
+
+        tela = "lsProduto";
+
+        function carrinho() {
+            tbody = "";
+            pedido = "Segue o meu pedido\n";
+            i = 0;
+            it = 1;
+            valorFinal = 0;
+            for (p of lsProduto) {
+                if (p.carrinho) {
+                    tbody += `<tr>
+                    <td>${p.nome}</td>
+                    <td>${p.valor}</td>
+                    <td>${p.quantidade}</td>
+                    <td>${p.valorParcial}</td>
+                    <td><span onclick="add(${i},${it},1)">+</span>
+                        <span onclick="add(${i},${it},-1)">-</span></td>
+                    </tr>`;
+                    it++;
+                    valorFinal += p.valorParcial;
+                    pedido += `${p.nome} ${p.valor} x (${p.quantidade}) = ${p.valorParcial} \n`;
+                }
+                i++;
+            }
+            tbody += `
+                <tr><td>Valor Final</td><td>${valorFinal}</td></tr>
+                `
+            pedido += `Valor Final = ${valorFinal} \n`
+            document.getElementsByTagName("tbody")[0].innerHTML = tbody;
+
+        }
+
+        function mudarTela() {
+            if (tela == "lsProduto") {
+                document.getElementById("lsQuantidade").style.display = "block";
+                document.getElementById("lsProduto").style.display = "none";
+                tela = "lsQuantidade";
+            } else {
+                document.getElementById("lsQuantidade").style.display = "none";
+                document.getElementById("lsProduto").style.display = "block";
+                tela = "lsProduto";
+            }
+        }
+
+        function add(i, it, opc) {
+            p = lsProduto[i];
+            p.quantidade = p.quantidade + opc;
+            p.valorParcial = p.quantidade * p.valor;
+            carrinho();
+            // tr = document.getElementsByTagName("tr")[it];
+            // tr.getElementsByTagName("td")[2].innerHTML = p.quantidade;
+            // tr.getElementsByTagName("td")[3].innerHTML = p.valorParcial;
+        }
+
+        function enviarWhatsApp() {
+            fone = "5561985607460";
+            nome = document.getElementById("nome").value;
+            pedido += `Cliente: ${nome}`;
+            pedido = encodeURI(pedido);
+            link = `https://api.whatsapp.com/send?phone=${fone}&text=${pedido}`;
+            window.open(link,'_blank');
+        }
     </script>
 </body>
 
