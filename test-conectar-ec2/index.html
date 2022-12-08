@@ -9,7 +9,7 @@
 <body>
     <script>
         ajax = new XMLHttpRequest();
-        ajax.open("GET","https://54.204.248.30:8080/hello");
+        ajax.open("GET","http://54.204.248.30:8080/hello");
         ajax.send();
         ajax.onload = function () {
             console.log(this.responseText);
